@@ -2,21 +2,28 @@
 
 [![PyPI version](https://badge.fury.io/py/verilink-aiverify-plugin.svg)](https://badge.fury.io/py/verilink-aiverify-plugin)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python Version](https://img.shields.io/pypi/pyversions/verilink-aiverify-plugin.svg)](https://pypi.org/project/verilink-aiverify-plugin)
+[![Downloads](https://img.shields.io/pypi/dm/verilink-aiverify-plugin.svg)](https://pypi.org/project/verilink-aiverify-plugin)
 
-## Overview
+## 📖 Overview
 
-VeriLinkOS AI Verify Plugin integrates active governance capabilities from VeriLinkOS into the AI Verify testing framework.
+VeriLinkOS AI Verify Plugin integrates **active governance capabilities** from [VeriLinkOS](https://verilink.io) into the [AI Verify](https://github.com/aiverify-foundation/aiverify) testing framework. It provides real-time enforcement, cryptographic evidence, and compliance guardrails for AI testing.
 
-### Features
+### 🎯 Why Use This Plugin?
 
-- ✅ Active Governance: Real-time policy enforcement during AI tests
-- ✅ VAP Receipts: Cryptographic evidence for compliance audits
-- ✅ AI-BOM Verification: Ensure model integrity and provenance
-- ✅ Trust Tokens: JIT authentication for each test run
-- ✅ Predictive Enforcement: ML-based risk prediction
+- **🛡️ Active Governance**: Prevent unauthorized AI actions **before** they occur
+- **🔐 Cryptographic Receipts**: Tamper-evident VAP receipts with Merkle-tree batching
+- **✅ AI-BOM Verification**: Ensure model integrity and provenance
+- **🔑 Trust Tokens**: JIT authentication for each test session
+- **🧠 Predictive Enforcement**: ML-based risk prediction to preemptively block risky tests
+- **⚖️ Constitutional AI**: Ethical and legal guardrails via MetaRuleSet
+- **👥 Multi-Agent Arbitration**: Conflict resolution for resource contention
 
-## Installation
+---
 
+## 🚀 Installation
+
+### From PyPI (Recommended)
 ```bash
 pip install verilink-aiverify-plugin
 ```
