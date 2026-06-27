@@ -1,0 +1,17 @@
+pycache/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+dist/
+build/
+*.egg-info/
+.env
+.venv/
+venv/
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
