@@ -10,12 +10,30 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
 dependencies = [
-    "httpx>=0.23.0,<0.28.0",
-    "pydantic>=1.10.0,<3.0.0",
+    "httpx>=0.28.1,<0.29.0",  # Updated to resolve conflict
+    "pydantic>=2.0.0,<3.0.0", # Upgraded to v2
     "python-dotenv>=0.19.0,<2.1.0",
     "tenacity>=8.0.0,<9.1.0",
+    "cryptography>=49.0.0,<50.0.0", # Updated to resolve conflict with pyopenssl/joserfc
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0,<8.0.0",
+    "pytest-asyncio>=0.21.0,<0.22.0",
+    "pytest-cov>=4.0.0,<5.0.0",
+    "mypy>=1.0.0,<2.0.0",
+    "ruff>=0.1.0,<0.2.0",
+]
+
+[project.entry-points."aiverify.plugins"]
+verilink_os = "verilink_plugin.plugin:VeriLinkGovernancePlugin"
 
 [tool.ruff]
 line-length = 100
 target-version = "py39"
+select = ["E", "F", "B", "I"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -25,3 +25,7 @@ class VeriLinkTimeoutError(VeriLinkError):
 class VeriLinkConfigError(VeriLinkError):
     """Raised when configuration is invalid."""
     pass
+
+class VeriLinkReceiptError(VeriLinkError):
+    """Raised when receipt generation or verification fails."""
+    pass
