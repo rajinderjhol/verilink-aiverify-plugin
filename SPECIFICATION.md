@@ -483,10 +483,14 @@ async def main():
         "organization_id": "org_001"
     })
     
+    # Define an asynchronous test function
+    async def run_my_test(config):
+        return {"passed": True, "artifacts": {}}
+
     # Run test with governance
     result = await plugin.run_test(
         {"model_id": "model-001"},
-        lambda config: {"passed": True, "artifacts": {}}
+        run_my_test
     )
     
     print(f"✅ Test passed: {result.passed}")

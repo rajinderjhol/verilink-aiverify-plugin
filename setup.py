@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="verilink-aiverify-plugin",
-    version="1.0.0",
+    version="1.1.0",
     description="VeriLinkOS Active Governance Integration for AI Verify",
     packages=find_packages(),
     install_requires=[
