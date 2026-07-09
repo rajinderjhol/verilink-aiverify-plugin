@@ -154,4 +154,9 @@ Apache 2.0 - See [LICENSE](./LICENSE) for details.
 
 ---
 
+** This plug-in is current unplugged from VeriLinkOS core Trust Infrastructure. To set up full demo, please contact 
+rajinderjhol@gmail.com  
+
+
+
 **Made with ❤️ for the AI governance community**
