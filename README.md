@@ -154,8 +154,9 @@ Apache 2.0 - See [LICENSE](./LICENSE) for details.
 
 ---
 
-** This plug-in is current unplugged from VeriLinkOS core Trust Infrastructure. To set up full demo, please contact 
-rajinderjhol@gmail.com  
+This plug-in is currently unplugged from VeriLinkOS core Trust Infrastructure. We will be carefully release more code for open-source development.
+
+To set up full demo, please contact rajinderjhol@gmail.com  
 
 
 
