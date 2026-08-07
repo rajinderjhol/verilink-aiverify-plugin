@@ -10,6 +10,7 @@ def event_loop():
 @pytest.fixture
 def mock_config():
     return {
+        "api_url": "http://mock-api.test",
         "api_key": "test_key",
         "agent_id": "test_agent",
         "organization_id": "test_org"

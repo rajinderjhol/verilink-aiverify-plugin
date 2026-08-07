@@ -57,7 +57,22 @@ class VeriLinkGovernancePlugin:
             logger.error(f"VeriLink setup failed: {str(e)}")
             self._initialized = False
     
+    def run_test_sync(self, test_config: Dict[str, Any], test_func: Callable) -> VeriLinkTestResult:
+        """Synchronous wrapper for running AI tests with VeriLinkOS governance."""
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            import nest_asyncio
+            nest_asyncio.apply()
+            return loop.run_until_complete(self.run_test(test_config, test_func))
+        else:
+            return asyncio.run(self.run_test(test_config, test_func))
+
     async def run_test(self, test_config: Dict[str, Any], test_func: Callable) -> VeriLinkTestResult:
+
         """Run an AI test with VeriLinkOS governance."""
         prediction = None
         try:

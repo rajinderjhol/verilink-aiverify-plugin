@@ -379,10 +379,15 @@ class VeriLinkReceipt(BaseModel):
     receipt_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     test_id: str
     timestamp: float
-    signature: str
-    evidence_hash: str
+    signature: str                                  # Proof #1 & #2 (Origin & Integrity)
+    evidence_hash: str                              # Proof #5 (Result Integrity)
+    input_hash: str                                 # Proof #4 (Input Fidelity)
+    policy_context: Dict[str, Any]                  # Proof #6 (Policy Context)
+    model_identity: str                             # Proof #7 (Model Identity)
+    human_oversight: Optional[Dict[str, Any]] = None # Proof #9 (Dwell time, Context hash)
+    hardware_attestation: Optional[str] = None      # Proof #8 (Execution Environment)
     merkle_root: Optional[str] = None
-    verification_url: Optional[str] = None
+    verification_url: Optional[str] = None          # Proof #3 (Timeliness/Anchoring)
 ```
 
 ### 5.4 Error Response

@@ -220,7 +220,17 @@ class VeriLinkClient:
                 return {"verified": True, "status": "verified", "is_mock": True}
             raise
 
+    async def verilink_verify_insurance_policy(self, policy_id: str) -> Dict:
+        """Verify active AI Assurance insurance policy status."""
+        try:
+            res = await self._verilink_request("GET", f"/v1/insurance/partners/verify-policy?policy_id={policy_id}")
+            return {"valid": res.get("valid", False), "policy": res.get("policy")}
+        except Exception as e:
+            logger.warning(f"Insurance verification skipped: {e}")
+            return {"valid": True, "policy": None, "degraded": True}
+
     async def verilink_predict_outcome(
+
         self, 
         config_fingerprint: str, 
         model_id: Optional[str] = None, 

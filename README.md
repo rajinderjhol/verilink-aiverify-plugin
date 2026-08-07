@@ -1,111 +1,121 @@
-# VeriLinkOS AI Verify Plugin
+# VeriLinkOS AI Verify Plugin v1.2.0
 
 [![PyPI version](https://badge.fury.io/py/verilink-aiverify-plugin.svg)](https://badge.fury.io/py/verilink-aiverify-plugin)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python Version](https://img.shields.io/pypi/pyversions/verilink-aiverify-plugin.svg)](https://pypi.org/project/verilink-aiverify-plugin)
-[![Downloads](https://img.shields.io/pypi/dm/verilink-aiverify-plugin.svg)](https://pypi.org/project/verilink-aiverify-plugin)
+[![VeriLinkOS Compatibility](https://img.shields.io/badge/VeriLinkOS-v3.0.0-purple.svg)](https://github.com/rajinderjhol/VeriLinkOS)
+[![VAP Protocol](https://img.shields.io/badge/protocol-Open_VAP_v3.0-blue.svg)](https://github.com/rajinderjhol/VeriLinkOS)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## 📖 Introduction
 
-VeriLinkOS AI Verify Plugin integrates **active governance capabilities** from [VeriLinkOS](https://verilink.io) into the [AI Verify](https://github.com/aiverify-foundation/aiverify) testing framework. It provides real-time enforcement, cryptographic evidence, and compliance guardrails for AI testing.
+VeriLinkOS AI Verify Plugin (v1.2.0) integrates **active governance and cryptographic insurance verification** from [VeriLinkOS v3.0.0](https://github.com/rajinderjhol/VeriLinkOS) into the [AI Verify](https://github.com/aiverify-foundation/aiverify) testing framework. It provides real-time enforcement, cryptographic VAP receipts, AI-BOM integrity checks, and parametric AI insurance policy verification.
 
-By bridging testing with governance, this plugin ensures that AI models are not only accurate but also ethically aligned and legally compliant throughout their evaluation lifecycle.
+By bridging testing with governance and insurance underwriting, this plugin ensures that AI models are not only accurate but also ethically aligned, cryptographically bound, and insured throughout their evaluation lifecycle.
 
-### 🎯 Key Capabilities
+### 🎯 Key Capabilities (v1.2.0)
 
-- **🛡️ Active Governance**: Prevent unauthorized AI actions **before** they occur
-- **🔐 Cryptographic Receipts**: Tamper-evident VAP receipts with Merkle-tree batching
-- **✅ AI-BOM Verification**: Ensure model integrity and provenance
-- **🔑 Trust Tokens**: JIT authentication for each test session
-- **🧠 Predictive Enforcement**: ML-based risk prediction to preemptively block risky tests
+- **🛡️ Active Governance**: Intercept and evaluate AI testing actions **before** execution occurs.
+- **🔐 Open VAP v3.0 Receipts**: Tamper-evident VAP receipts with Merkle-tree batching and Ed25519 signatures.
+- **🔥 VeriLink Assurance AI Insurance**: Verify active underwriting policy status (`/v1/insurance/partners/verify-policy`).
+- **🧰 Developer CLI Utility (`verilink-verify`)**: Test connection health, policies, and receipts directly from the command line.
+- **⚡ Synchronous Wrapper (`run_test_sync`)**: Execute governance tests in non-`async` test runners without event loop boilerplate.
+- **✅ AI-BOM 2.0 & CycloneDX Verification**: Ensure model weight integrity with SHA-256 checksums and SBOM provenance.
+- **🔑 JIT Trust Tokens**: Cryptographically signed JIT authentication for test sessions.
+- **🧠 Predictive Risk Enforcement**: Preemptively block high-risk tests based on ML failure prediction.
 
-For a deep dive into the technical architecture, please refer to the [Technical Specification](./SPECIFICATION.md).
+For a deep dive into the technical architecture, refer to the [Technical Specification](./SPECIFICATION.md).
 
 ---
 
-## ⚙️ Setup
-
-### Installation
+## ⚙️ Setup & Installation
 
 ```bash
 pip install verilink-aiverify-plugin
 ```
 
-### Configuration
+---
 
-The plugin can be configured using environment variables or by passing a dictionary directly to the constructor.
+## 🧰 Developer CLI (`verilink-verify`)
 
-#### Option 1: Environment Variables
+The plugin includes a command-line tool for debugging and diagnostic checks:
 
 ```bash
-export VERILINK_API_URL=https://api.verilink.os
-export VERILINK_API_KEY=your_api_key
-export VERILINK_AGENT_ID=your_agent_id
-export VERILINK_ORG_ID=your_organization_id
-export VERILINK_ENFORCE_MODE=block  # Optional: block, warn, log, observe
-```
+# Check server connectivity and health status
+verilink-verify health --api-url http://localhost:8000
 
-#### Option 2: Inline Dictionary
+# Verify active AI Assurance policy status
+verilink-verify check-policy POL-2026-SG-001 --api-url http://localhost:8000
 
-```python
-from verilink_plugin import VeriLinkGovernancePlugin
-
-config = {
-    "api_url": "https://api.verilink.os",
-    "api_key": "your_api_key",
-    "agent_id": "agent_001",
-    "organization_id": "org_001"
-}
-plugin = VeriLinkGovernancePlugin(config)
+# Verify a VAP receipt ID
+verilink-verify verify-receipt VAP-RECEIPT-ID
 ```
 
 ---
 
 ## 🚀 Quick Start
 
+### Option A: Asynchronous (`async/await`)
+
 ```python
 import asyncio
 from verilink_plugin import VeriLinkGovernancePlugin, VeriLinkError
 
 async def my_ai_test(config):
-    """Your AI Verify test logic here."""
-    # Simulate test execution
+    """AI Verify test logic execution."""
     await asyncio.sleep(0.1)
-    return {"passed": True, "artifacts": {"accuracy": 0.98}}
+    return {"passed": True, "artifacts": {"accuracy": 0.98, "bias_score": 0.01}}
 
-async def test_model():
-    # Initialize plugin
+async def main():
+    # Initialize plugin for VeriLinkOS v3.0.0
     plugin = VeriLinkGovernancePlugin({
-        "api_url": "http://localhost:8000",  # Your VeriLinkOS URL
-        "api_key": "your_api_key",
-        "agent_id": "your_agent_id",
-        "organization_id": "your_org_id"
+        "api_url": "http://localhost:8000",
+        "api_key": "test_admin_key",
+        "agent_id": "agent-verify-001",
+        "organization_id": "org-verify-001"
     })
     
     try:
-        # Run test with governance
+        # 1. Verify active AI Insurance policy
+        insurance_check = await plugin.client.verilink_verify_insurance_policy("POL-2026-SG-001")
+        print(f"🛡️ Insurance Coverage Active: {insurance_check.get('valid')}")
+
+        # 2. Run test with VeriLinkOS active governance
         result = await plugin.run_test(
-            {"model_id": "model-001", "dataset": "test-data"},
+            {"model_id": "model-001", "dataset": "clinical-eval-v1"},
             my_ai_test
         )
         
         print(f"✅ Test Result: {'PASSED' if result.passed else 'FAILED'}")
         print(f"📋 Receipt ID: {result.receipt_id}")
-        print(f"🔗 Verification: {result.verification_url}")
         
     except VeriLinkError as e:
         print(f"❌ Governance Error: {e}")
     finally:
         await plugin.cleanup()
 
-asyncio.run(test_model())
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### Option B: Synchronous (`run_test_sync`)
+
+For synchronous testing environments (e.g. standard `unittest` or sync scripts):
+
+```python
+from verilink_plugin import VeriLinkGovernancePlugin
+
+plugin = VeriLinkGovernancePlugin(config)
+
+# Run test synchronously
+result = plugin.run_test_sync(
+    {"model_id": "model-001"},
+    my_sync_test_func
+)
+print(f"Status: {result.governance_status}")
 ```
 
 ---
 
 ## 🔧 Error Handling
-
-The plugin raises specific exceptions for different error scenarios:
 
 | Exception | Description |
 |-----------|-------------|
@@ -114,28 +124,6 @@ The plugin raises specific exceptions for different error scenarios:
 | `VeriLinkTimeoutError` | Request timed out |
 | `VeriLinkValidationError` | Invalid configuration |
 | `VeriLinkConfigError` | Configuration validation failed |
-
-```python
-from verilink_plugin import (
-    VeriLinkGovernancePlugin,
-    VeriLinkConnectionError,
-    VeriLinkAuthError
-)
-
-try:
-    plugin = VeriLinkGovernancePlugin(config)
-    result = await plugin.run_test(test_config, test_func)
-except VeriLinkConnectionError:
-    print("⚠️ Cannot reach VeriLinkOS. Check your connection.")
-except VeriLinkAuthError:
-    print("🔒 Authentication failed. Check your API key.")
-```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on our code of conduct and development process.
 
 ---
 
@@ -147,16 +135,12 @@ Apache 2.0 - See [LICENSE](./LICENSE) for details.
 
 ## 🔗 Links
 
+- **VeriLinkOS Kernel Repository**: https://github.com/rajinderjhol/VeriLinkOS
 - **PyPI**: https://pypi.org/project/verilink-aiverify-plugin/
-- **GitHub**: https://github.com/rajinderjhol/verilink-aiverify-plugin
-- **Issues**: https://github.com/rajinderjhol/verilink-aiverify-plugin/issues
-- **Specification**: [SPECIFICATION.md](./SPECIFICATION.md)
-
+- **Quickstart Demo**: [`examples/quickstart.py`](./examples/quickstart.py)
 ---
 
-
-To set up full demo, please contact rajinderjhol@gmail.com  
-
-
+To set up full demo, please contact rajinderjhol@gmail.com
 
 **Made with ❤️ for the AI governance community**
+

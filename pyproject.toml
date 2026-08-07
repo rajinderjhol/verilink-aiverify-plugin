@@ -4,8 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "verilink-aiverify-plugin"
-version = "1.1.0"
-description = "VeriLinkOS Active Governance Integration for AI Verify"
+version = "1.2.0"
+description = "VeriLinkOS Active Governance & AI Assurance Integration for AI Verify"
+
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
@@ -28,6 +29,10 @@ dev = [
 
 [project.entry-points."aiverify.plugins"]
 verilink_os = "verilink_plugin.plugin:VeriLinkGovernancePlugin"
+
+[project.scripts]
+verilink-verify = "verilink_plugin.cli:main"
+
 
 [tool.ruff]
 line-length = 100
