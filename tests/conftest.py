@@ -12,6 +12,6 @@ def mock_config():
     return {
         "api_url": "http://mock-api.test",
         "api_key": "test_key",
-        "agent_id": "test_agent",
-        "organization_id": "test_org"
+        "agent_id": "00000000-0000-0000-0000-000000000001",
+        "organization_id": "00000000-0000-0000-0000-000000000000"
     }

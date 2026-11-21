@@ -52,12 +52,14 @@ class VeriLinkConfig(BaseModel):
                 raise ValueError("private_key_hex must be a valid hex string")
         return v
     
-    @field_validator('agent_id')
+    @field_validator('agent_id', 'organization_id')
     @classmethod
-    def validate_agent_id(cls, v: str) -> str:
-        if not v or len(v) < 10:
-            raise ValueError("Agent ID must be a valid UUID or identifier")
-        return v
+    def validate_uuid_ids(cls, v: str) -> str:
+        try:
+            uuid.UUID(str(v))
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise ValueError("agent_id and organization_id must be UUIDs") from exc
+        return str(v)
 
 class VeriLinkTestResult(BaseModel):
     """Result of a test with VeriLinkOS governance."""

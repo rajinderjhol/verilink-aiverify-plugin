@@ -2,14 +2,12 @@
 HTTP client for VeriLinkOS API
 """
 
+import asyncio
 import logging
 import time
 from typing import Dict, Any, Optional
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from datetime import datetime, timezone
-import hashlib
-import hmac
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
 
@@ -17,7 +15,8 @@ from .models import VeriLinkConfig
 from .exceptions import (
     VeriLinkConnectionError,
     VeriLinkAuthError,
-    VeriLinkTimeoutError
+    VeriLinkTimeoutError,
+    VeriLinkValidationError,
 )
 
 logger = logging.getLogger("verilink_plugin")
@@ -28,6 +27,7 @@ class VeriLinkClient:
     def __init__(self, config: VeriLinkConfig):
         self.config = config
         self._client = None
+        self._token = None
         # Initialize private key and client
         self._private_key = None
         if config.private_key_hex and config.private_key_hex.get_secret_value():
@@ -47,7 +47,8 @@ class VeriLinkClient:
                 headers={
                     "X-API-Key": self.config.api_key.get_secret_value(),
                     "Content-Type": "application/json",
-                    "User-Agent": "VeriLink-AIVerify-Plugin/1.0.0"
+                    "User-Agent": "VeriLink-AIVerify-Plugin/1.2.0",
+                    **({"Authorization": f"Bearer {self._token}"} if self._token else {}),
                 },
                 timeout=self.config.timeout,
                 limits=httpx.Limits(
@@ -68,31 +69,36 @@ class VeriLinkClient:
             return False
 
     def _sign_agent_id(self, agent_id: str) -> str:
-        """Sign the agent_id using Ed25519 or fallback to HMAC."""
-        if self._private_key:
-            try:
-                signature = self._private_key.sign(agent_id.encode())
-                return signature.hex()
-            except Exception as e:
-                logger.warning(f"Ed25519 signing failed: {e}, falling back to HMAC")
-        
-        # Fallback: HMAC with API key (for testing/development)
-        logger.debug("Using HMAC fallback for signature")
-        return hmac.new(
-            self.config.api_key.get_secret_value().encode(),
-            agent_id.encode(),
-            hashlib.sha256
-        ).hexdigest()
+        """Sign the agent_id with the agent's Ed25519 key.
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=1, max=10),
-        retry=retry_if_exception_type(
-            (httpx.RequestError, httpx.TimeoutException, VeriLinkTimeoutError)
-        )
-    )
+        The trust-token endpoint verifies this against the agent's registered
+        public key. An API-key HMAC is not accepted there, so fail closed
+        rather than silently producing an unusable signature.
+        """
+        if not self._private_key:
+            raise VeriLinkValidationError(
+                "private_key_hex is required to issue a JIT trust token"
+            )
+        return self._private_key.sign(agent_id.encode()).hex()
+
     async def _verilink_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict:
-        """Make a request to VeriLinkOS API with retry logic."""
+        """Make a request to VeriLinkOS API with configurable retry logic."""
+        last_error = None
+        for attempt in range(self.config.max_retries + 1):
+            try:
+                return await self._request_once(method, endpoint, data)
+            except (httpx.TimeoutException, VeriLinkTimeoutError) as exc:
+                last_error = exc
+                if attempt < self.config.max_retries:
+                    await asyncio.sleep(min(2 ** attempt, 10))
+            except httpx.ConnectError as exc:
+                raise VeriLinkConnectionError(
+                    f"Connection failed: {exc}. Verify your VERILINK_API_URL."
+                ) from exc
+        raise last_error or VeriLinkTimeoutError(f"Request to {endpoint} timed out")
+
+    async def _request_once(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict:
+        """Single HTTP attempt; kept separate from the retry loop."""
         try:
             response = await self.client.request(method, endpoint, json=data)
             
@@ -137,16 +143,32 @@ class VeriLinkClient:
             res = await self._verilink_request("POST", endpoint)
             
             token = res.get("token") or res.get("trust_token")
-            if token:
-                logger.debug("Trust token acquired successfully")
-                return token
-            
-            logger.warning("No token in response, using API key fallback")
-            return self.config.api_key.get_secret_value()
-            
+            if not token:
+                raise VeriLinkAuthError("Trust token response contained no token")
+            self._token = token
+            if self._client is not None:
+                self._client.headers["Authorization"] = f"Bearer {token}"
+            logger.debug("Trust token acquired and attached to subsequent requests")
+            return token
+
+        except VeriLinkValidationError:
+            raise
         except Exception as e:
-            logger.warning(f"Token acquisition failed: {e}, using API key fallback")
-            return self.config.api_key.get_secret_value()
+            raise VeriLinkAuthError(f"Trust token acquisition failed: {e}") from e
+
+    async def verilink_evaluate_policy(self, test_config: Dict) -> Dict:
+        """Evaluate the proposed test action against live Guardian policy."""
+        return await self._verilink_request("POST", "/v1/policy/evaluate", {
+            "subject": str(self.config.agent_id),
+            "action": {
+                "type": "ai_decision",
+                "parameters": {
+                    "model_id": test_config.get("model_id"),
+                    "test_type": test_config.get("test_type"),
+                },
+            },
+            "context": {"source": "aiverify-plugin", "jurisdiction": self.config.jurisdiction},
+        })
 
     async def verilink_verify_aibom(self, aibom_data: Dict) -> Dict:
         """Validate Model Integrity via AI-BOM verification."""
@@ -162,11 +184,10 @@ class VeriLinkClient:
         try:
             res = await self._verilink_request("POST", "/v1/bom/verify", payload)
             return {"valid": res.get("status") == "verified", "bom_id": res.get("bom_id")}
-        except (VeriLinkConnectionError, Exception) as e:
-            if "404" in str(e) or "not found" in str(e).lower():
-                logger.warning("BOM verification skipped - endpoint not available")
-                return {"valid": True, "bom_id": None}
-            raise
+        except Exception as e:
+            # Fail closed: an unavailable verification endpoint is not approval.
+            logger.warning(f"BOM verification failed: {e}")
+            return {"valid": False, "bom_id": None, "degraded": True}
 
     async def verilink_generate_receipt(self, test_evidence: Dict) -> Dict:
         """Generate a VAP Receipt."""
@@ -178,8 +199,8 @@ class VeriLinkClient:
                 "metadata": test_evidence.get("test_config", {})
             },
             "decision": {
-                "verdict": "allow",
-                "confidence": 100
+                "verdict": test_evidence.get("verdict", "allow"),
+                "confidence": int(test_evidence.get("confidence", 100)),
             },
             "context": {
                 "policy_id": test_evidence.get("policy_id", "ai_verify_plugin"),
@@ -188,46 +209,40 @@ class VeriLinkClient:
             "rationale": "Automatic receipt from AI Verify integration"
         }
         
-        try:
-            return await self._verilink_request("POST", "/v1/vap/receipt/generate", payload)
-        except (VeriLinkConnectionError, Exception) as e:
-            if "503" in str(e) or "Database" in str(e) or "server" in str(e).lower():
-                logger.warning("Receipt generation failed, returning mock receipt")
-                return {
-                    "receipt_id": f"mock-receipt-{int(time.time())}",
-                    "status": "generated",
-                    "merkle_root": "0x" + "0" * 64,
-                    "is_mock": True
-                }
-            raise
+        # No mock receipts: a receipt either exists on the ledger or the
+        # operation fails. Callers must not see a synthetic receipt ID.
+        return await self._verilink_request("POST", "/v1/vap/receipt/generate", payload)
+
+    # ReceiptStatus values from VeriLinkOS (verilink/enums.py).
+    VERIFIED_STATUSES = {"permit_granted", "settlement_complete", "automated"}
 
     async def verilink_verify_receipt(self, receipt_id: str) -> Dict:
-        """Verify an existing receipt."""
-        # Mock receipt detection
-        if receipt_id and receipt_id.startswith("mock-receipt-"):
-            logger.info(f"Mock receipt {receipt_id} - skipping verification")
-            return {"verified": True, "status": "verified", "is_mock": True}
-        
+        """Verify an existing receipt by its real ledger status. Fail closed."""
+        if not receipt_id or receipt_id.startswith("mock-"):
+            return {"verified": False, "status": None, "error": "invalid receipt id"}
+
         try:
             res = await self._verilink_request("GET", f"/v1/vap/receipt/{receipt_id}")
-            return {
-                "verified": res.get("status") in ["verified", "approved"], 
-                "status": res.get("status")
-            }
-        except (VeriLinkConnectionError, Exception) as e:
-            if "404" in str(e) or "not found" in str(e).lower():
-                logger.warning(f"Receipt {receipt_id} not found, treating as verified")
-                return {"verified": True, "status": "verified", "is_mock": True}
-            raise
+            status = res.get("status")
+            return {"verified": status in self.VERIFIED_STATUSES, "status": status}
+        except Exception as e:
+            logger.warning(f"Receipt verification failed for {receipt_id}: {e}")
+            return {"verified": False, "status": None, "error": str(e)}
 
     async def verilink_verify_insurance_policy(self, policy_id: str) -> Dict:
-        """Verify active AI Assurance insurance policy status."""
+        """Verify active AI Assurance insurance policy status. Fail closed."""
         try:
-            res = await self._verilink_request("GET", f"/v1/insurance/partners/verify-policy?policy_id={policy_id}")
-            return {"valid": res.get("valid", False), "policy": res.get("policy")}
+            res = await self._verilink_request(
+                "POST",
+                f"/v1/insurance/partners/verify-policy?policy_id={policy_id}",
+            )
+            valid = bool(res.get("is_valid", res.get("valid", False)))
+            if not valid and str(res.get("status", "")).lower() == "verified":
+                valid = True
+            return {"valid": valid, "status": res.get("status"), "policy": res.get("policy")}
         except Exception as e:
-            logger.warning(f"Insurance verification skipped: {e}")
-            return {"valid": True, "policy": None, "degraded": True}
+            logger.warning(f"Insurance verification failed: {e}")
+            return {"valid": False, "status": None, "policy": None, "degraded": True}
 
     async def verilink_predict_outcome(
 

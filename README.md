@@ -1,20 +1,20 @@
 # VeriLinkOS AI Verify Plugin v1.2.0
 
 [![PyPI version](https://badge.fury.io/py/verilink-aiverify-plugin.svg)](https://badge.fury.io/py/verilink-aiverify-plugin)
-[![VeriLinkOS Compatibility](https://img.shields.io/badge/VeriLinkOS-v3.0.0-purple.svg)](https://github.com/rajinderjhol/VeriLinkOS)
+[![VeriLinkOS Compatibility](https://img.shields.io/badge/VeriLinkOS-v3.7.0-purple.svg)](https://github.com/rajinderjhol/VeriLinkOS)
 [![VAP Protocol](https://img.shields.io/badge/protocol-Open_VAP_v3.0-blue.svg)](https://github.com/rajinderjhol/VeriLinkOS)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## 📖 Introduction
 
-VeriLinkOS AI Verify Plugin (v1.2.0) integrates **active governance and cryptographic insurance verification** from [VeriLinkOS v3.0.0](https://github.com/rajinderjhol/VeriLinkOS) into the [AI Verify](https://github.com/aiverify-foundation/aiverify) testing framework. It provides real-time enforcement, cryptographic VAP receipts, AI-BOM integrity checks, and parametric AI insurance policy verification.
+VeriLinkOS AI Verify Plugin (v1.2.0) integrates **active governance and cryptographic insurance verification** from [VeriLinkOS v3.7.0](https://github.com/rajinderjhol/VeriLinkOS) into the [AI Verify](https://github.com/aiverify-foundation/aiverify) testing framework. It provides real-time enforcement, cryptographic VAP receipts, AI-BOM integrity checks, and parametric AI insurance policy verification.
 
 By bridging testing with governance and insurance underwriting, this plugin ensures that AI models are not only accurate but also ethically aligned, cryptographically bound, and insured throughout their evaluation lifecycle.
 
 ### 🎯 Key Capabilities (v1.2.0)
 
 - **🛡️ Active Governance**: Intercept and evaluate AI testing actions **before** execution occurs.
-- **🔐 Open VAP v3.0 Receipts**: Tamper-evident VAP receipts with Merkle-tree batching and Ed25519 signatures.
+- **🔐 Open VAP v3.0 Receipts**: Server-issued Ed25519-signed receipts with a local Merkle commitment. Multi-hash batching is a server-side roadmap item.
 - **🔥 VeriLink Assurance AI Insurance**: Verify active underwriting policy status (`/v1/insurance/partners/verify-policy`).
 - **🧰 Developer CLI Utility (`verilink-verify`)**: Test connection health, policies, and receipts directly from the command line.
 - **⚡ Synchronous Wrapper (`run_test_sync`)**: Execute governance tests in non-`async` test runners without event loop boilerplate.
@@ -65,7 +65,7 @@ async def my_ai_test(config):
     return {"passed": True, "artifacts": {"accuracy": 0.98, "bias_score": 0.01}}
 
 async def main():
-    # Initialize plugin for VeriLinkOS v3.0.0
+    # Initialize plugin for VeriLinkOS v3.7.0
     plugin = VeriLinkGovernancePlugin({
         "api_url": "http://localhost:8000",
         "api_key": "test_admin_key",
@@ -122,8 +122,8 @@ print(f"Status: {result.governance_status}")
 | `VeriLinkConnectionError` | Cannot connect to VeriLinkOS API |
 | `VeriLinkAuthError` | Invalid API credentials or signature |
 | `VeriLinkTimeoutError` | Request timed out |
-| `VeriLinkValidationError` | Invalid configuration |
-| `VeriLinkConfigError` | Configuration validation failed |
+| `VeriLinkValidationError` | Missing Ed25519 key or invalid signing payload |
+| `VeriLinkConfigError` | Invalid configuration values (agent IDs must be UUIDs) |
 
 ---
 

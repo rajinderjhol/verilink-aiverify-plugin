@@ -4,7 +4,15 @@ VeriLinkOS AI Verify Plugin
 from .plugin import VeriLinkGovernancePlugin
 from .client import VeriLinkClient
 from .models import VeriLinkConfig, VeriLinkTestResult, VeriLinkEnforcementMode
-from .exceptions import VeriLinkError
+from .exceptions import (
+    VeriLinkError,
+    VeriLinkAuthError,
+    VeriLinkConfigError,
+    VeriLinkConnectionError,
+    VeriLinkReceiptError,
+    VeriLinkTimeoutError,
+    VeriLinkValidationError,
+)
 
 __version__ = "1.2.0"
 
@@ -15,5 +23,11 @@ __all__ = [
     "VeriLinkConfig",
     "VeriLinkTestResult",
     "VeriLinkEnforcementMode",
-    "VeriLinkError"
+    "VeriLinkError",
+    "VeriLinkAuthError",
+    "VeriLinkConfigError",
+    "VeriLinkConnectionError",
+    "VeriLinkReceiptError",
+    "VeriLinkTimeoutError",
+    "VeriLinkValidationError",
 ]

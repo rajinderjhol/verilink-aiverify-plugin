@@ -12,12 +12,13 @@ def main():
     parser = argparse.ArgumentParser(
         description="VeriLinkOS AI Verify Plugin Developer CLI"
     )
-    parser.add_argument("--api-url", default="http://localhost:8000", help="VeriLinkOS API endpoint URL")
-    parser.add_argument("--api-key", default="test_admin_key", help="VeriLinkOS API Key")
-    parser.add_argument("--agent-id", default="agent-cli-001", help="Agent identifier")
-    parser.add_argument("--org-id", default="org-cli-001", help="Organization identifier")
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--api-url", default="http://localhost:8000", help="VeriLinkOS API endpoint URL")
+    common.add_argument("--api-key", default="test_admin_key", help="VeriLinkOS API Key")
+    common.add_argument("--agent-id", default="00000000-0000-0000-0000-000000000001", help="Agent UUID")
+    common.add_argument("--org-id", default="00000000-0000-0000-0000-000000000000", help="Organization UUID")
 
-    subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
+    subparsers = parser.add_subparsers(dest="command", help="Available subcommands", parser_class=lambda **kw: argparse.ArgumentParser(parents=[common], **kw))
 
     # Command: health
     subparsers.add_parser("health", help="Check VeriLinkOS server health status")

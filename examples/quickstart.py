@@ -22,15 +22,15 @@ async def evaluate_clinical_ai_model(test_config):
 
 async def main():
     print("==================================================")
-    print("🚀 VeriLinkOS v3.0.0 AI Governance Quickstart")
+    print("🚀 VeriLinkOS AI Governance Quickstart")
     print("==================================================")
 
     # 1. Initialize plugin
     plugin = VeriLinkGovernancePlugin({
         "api_url": os.getenv("VERILINK_API_URL", "http://localhost:8000"),
         "api_key": os.getenv("VERILINK_API_KEY", "test_admin_key"),
-        "agent_id": os.getenv("VERILINK_AGENT_ID", "agent-quickstart-001"),
-        "organization_id": os.getenv("VERILINK_ORG_ID", "org-quickstart-001"),
+        "agent_id": os.getenv("VERILINK_AGENT_ID", "00000000-0000-0000-0000-000000000001"),
+        "organization_id": os.getenv("VERILINK_ORG_ID", "00000000-0000-0000-0000-000000000000"),
         "enforce_mode": "block",
         "predictive_enabled": True
     })

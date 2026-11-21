@@ -2,7 +2,7 @@
 ## Technical Specification & Architecture Documentation
 
 **Version:** 1.0.0  
-**Status:** Production Ready  
+**Status:** Shipped v1.2.0; see VeriLinkOS STATUS for server capabilities  
 **Release Date:** June 27, 2026  
 **License:** Apache 2.0
 
@@ -36,12 +36,12 @@ The VeriLinkOS AI Verify Plugin is a production-grade integration that bridges *
 | Capability | Description |
 |------------|-------------|
 | **Active Governance** | Real-time blocking of non-compliant AI actions during testing |
-| **Cryptographic Receipts** | Tamper-evident VAP receipts with Merkle-tree batching |
+| **Cryptographic Receipts** | Server-issued VAP receipts with a local Merkle commitment; multi-hash batching is planned |
 | **AI-BOM Verification** | Model integrity verification against registered AI-BOMs |
 | **Trust Token Management** | JIT authentication for each test session |
 | **Predictive Enforcement** | ML-based risk prediction to preemptively block risky tests |
-| **Constitutional AI** | Ethical and legal guardrails via MetaRuleSet integration |
-| **Multi-Agent Arbitration** | Conflict resolution for resource contention |
+| **Constitutional AI** | Server-side MetaRuleSet applies guardrails; plugin does not evaluate them locally |
+| **Multi-Agent Arbitration** | Server-side `/v1/guardian/arbitrate`; not implemented in the plugin |
 
 ### 1.3 Target Audience
 
@@ -189,7 +189,7 @@ class VeriLinkClient:
 | `verilink_get_token()` | Retrieve JIT Trust Token | str |
 | `verilink_verify_aibom(data)` | Verify AI-BOM integrity | Dict |
 | `verilink_generate_receipt(evidence)` | Generate VAP receipt | Dict |
-| `verilink_verify_receipt(receipt_id)` | Verify receipt validity | bool |
+| `verilink_verify_receipt(receipt_id)` | Verify receipt validity | Dict (`verified`, `status`) |
 | `verilink_predict_outcome(fingerprint)` | Predict failure probability | float |
 
 ### 3.3 Configuration Manager: `VeriLinkConfig`
@@ -255,7 +255,8 @@ def __init__(self, config_dict: Optional[Dict] = None):
             - jurisdiction (str, optional): Legal jurisdiction
     
     Raises:
-        VeriLinkValidationError: Invalid configuration
+        VeriLinkValidationError: Signing key or payload invalid
+        VeriLinkConfigError: Configuration validation failed
     """
 ```
 
@@ -580,7 +581,7 @@ logger.critical("Critical errors")
 
 ## 12. Roadmap
 
-### 12.1 Version 1.1.0 (Planned)
+### 12.1 Version 1.2.0 (Shipped)
 
 | Feature | Description | Status |
 |---------|-------------|--------|

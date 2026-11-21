@@ -35,7 +35,7 @@ async def main():
         # Test a simple action
         result = await plugin.run_test(
             {"model_id": "test-model"},
-            lambda config: {"passed": True}
+            lambda config: {"passed": True}  # sync callbacks are supported
         )
         
         print(f"✅ Test result: {result.passed}")
