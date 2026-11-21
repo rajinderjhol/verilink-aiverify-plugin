@@ -1,7 +1,7 @@
 # VeriLinkOS AI Verify Plugin
 ## Technical Specification & Architecture Documentation
 
-**Version:** 1.0.0  
+**Version:** 1.2.0  
 **Status:** Shipped v1.2.0; see VeriLinkOS STATUS for server capabilities  
 **Release Date:** June 27, 2026  
 **License:** Apache 2.0
@@ -36,7 +36,7 @@ The VeriLinkOS AI Verify Plugin is a production-grade integration that bridges *
 | Capability | Description |
 |------------|-------------|
 | **Active Governance** | Real-time blocking of non-compliant AI actions during testing |
-| **Cryptographic Receipts** | Server-issued VAP receipts with a local Merkle commitment; multi-hash batching is planned |
+| **Cryptographic Receipts** | Server-issued VAP receipts with a local Merkle commitment; multi-hash batching is available server-side |
 | **AI-BOM Verification** | Model integrity verification against registered AI-BOMs |
 | **Trust Token Management** | JIT authentication for each test session |
 | **Predictive Enforcement** | ML-based risk prediction to preemptively block risky tests |
@@ -592,7 +592,7 @@ logger.critical("Critical errors")
 
 ---
 
-**Document Version:** 1.0.0  
+**Document Version:** 1.2.0  
 **Last Updated:** June 27, 2026  
 **Maintained by:** Rajinder Jhol  
 **License:** Apache 2.0

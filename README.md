@@ -14,7 +14,7 @@ By bridging testing with governance and insurance underwriting, this plugin ensu
 ### 🎯 Key Capabilities (v1.2.0)
 
 - **🛡️ Active Governance**: Intercept and evaluate AI testing actions **before** execution occurs.
-- **🔐 Open VAP v3.0 Receipts**: Server-issued Ed25519-signed receipts with a local Merkle commitment. Multi-hash batching is a server-side roadmap item.
+- **🔐 Open VAP v3.0 Receipts**: Server-issued Ed25519-signed receipts with a local Merkle commitment. Multi-hash batching is available server-side via `/v1/anchoring/batches`.
 - **🔥 VeriLink Assurance AI Insurance**: Verify active underwriting policy status (`/v1/insurance/partners/verify-policy`).
 - **🧰 Developer CLI Utility (`verilink-verify`)**: Test connection health, policies, and receipts directly from the command line.
 - **⚡ Synchronous Wrapper (`run_test_sync`)**: Execute governance tests in non-`async` test runners without event loop boilerplate.

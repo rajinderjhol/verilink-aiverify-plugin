@@ -8,7 +8,7 @@ from verilink_plugin import VeriLinkGovernancePlugin
 
 async def main():
     plugin = VeriLinkGovernancePlugin({
-        "api_url": os.getenv("VERILINK_API_URL", "https://api.verilink.os"),
+        "api_url": os.getenv("VERILINK_API_URL", "http://localhost:8000"),
         "api_key": os.getenv("VERILINK_API_KEY", "test_key"),
         "agent_id": os.getenv("VERILINK_AGENT_ID", "00000000-0000-0000-0000-000000000001"),
         "organization_id": os.getenv("VERILINK_ORG_ID", "00000000-0000-0000-0000-000000000000")

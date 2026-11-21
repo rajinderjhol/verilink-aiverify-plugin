@@ -38,7 +38,7 @@ async def main():
     try:
         # 2. Check server health
         healthy = await plugin.client.verilink_health_check()
-        print(f"📡 Connectivity Status: {'ONLINE' if healthy else 'DEGRADED/MOCK'}")
+        print(f"📡 Connectivity Status: {'ONLINE' if healthy else 'DEGRADED'}")
 
         # 3. Check AI Insurance coverage
         policy_id = "POL-2026-CLINICAL-001"
