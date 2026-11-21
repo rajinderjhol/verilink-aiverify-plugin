@@ -133,7 +133,7 @@ class VeriLinkClient:
             agent_id = str(self.config.agent_id)
             signature = self._sign_agent_id(agent_id)
             
-            endpoint = f"/v1/trust/token?agent_id={agent_id}&signature={signature}"
+            endpoint = f"/v1/agents/trust/token?agent_id={agent_id}&signature={signature}"
             res = await self._verilink_request("POST", endpoint)
             
             token = res.get("token") or res.get("trust_token")
